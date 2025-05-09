@@ -89,16 +89,34 @@ export const FormComponent = () => {
     setShowConfirmation(true);
   };
 
-  const confirmSubmit = () => {
-    dispatch(submitForm({ username, email, age, password }));
-    setPassword(""); // do NOT save password in localStorage
-    setShowConfirmation(false);
+  const confirmSubmit = async () => {
+    try {
+      const response = await fetch('/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, age }),
+      });
 
-    // Clear submissions after 5 seconds
-    setTimeout(() => {
-      dispatch(clearSubmissions());
-    }, 5000);
+      if (!response.ok) {
+        throw new Error('Failed to submit to backend');
+      }
+
+      const result = await response.json();
+      console.log('Backend response:', result);
+
+      dispatch(submitForm({ username, email, age, password }));
+      setPassword('');
+      setShowConfirmation(false);
+
+      // Clear submissions after 5 seconds
+      setTimeout(() => {
+        dispatch(clearSubmissions());
+      }, 5000);
+    } catch (error) {
+      alert(`Error submitting to backend: ${error.message}`);
+    }
   };
+
 
   const cancelSubmit = () => {
     setShowConfirmation(false);
