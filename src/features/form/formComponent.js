@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Timer } from '../../services/timerService';
+import { timedFetch } from '../../services/timeFetch';
 
 import { useDispatch, useSelector } from "react-redux";
 import { submitForm, clearSubmissions } from "./formSlice";
@@ -92,18 +92,13 @@ export const FormComponent = () => {
   };
 
   const confirmSubmit = async () => {
-    const timer = new Timer();
-    timer.start();
-
     try {
-      const response = await fetch('/submissions', {
+      const {response, elapsed} = await timedFetch('/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, age }),
       });
 
-      timer.stop();
-      const elapsed = timer.getElapsed();
       console.log(`✅ API call completed in ${elapsed} ms`);
 
       if (!response.ok) {
@@ -122,9 +117,7 @@ export const FormComponent = () => {
         dispatch(clearSubmissions());
       }, 5000);
     } catch (error) {
-      timer.stop();
-      const elapsed = timer.getElapsed();
-      console.error(`❌ API call failed in ${elapsed} ms:`, error.message);
+      console.error(`❌ API call failed in ${error.elapsed} ms:`, error.message);
 
       alert(`Error submitting to backend: ${error.message}`);
     }
