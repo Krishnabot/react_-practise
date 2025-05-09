@@ -1,6 +1,7 @@
 import { Timer } from './timerService';
-import { WARNING_THRESHOLD_MS } from '../constants/performanceConstants';
+import { getConfig } from './configService';
 
+const { WARNING_THRESHOLD_MS } = getConfig();
 
 export const timedFetch = async (url, options = {}) => {
   const timer = new Timer();

@@ -5,7 +5,7 @@ export const handlers = [
     const { username } = await request.json();
 
     // Simulate network latency: wait 500–1500 ms randomly
-    const randomDelay = Math.floor(Math.random() * 1000) + 500;
+    const randomDelay = Math.floor(Math.random() * 1000) + 1500;
     await delay(randomDelay);
 
     // Simulate random failures: 25% chance
