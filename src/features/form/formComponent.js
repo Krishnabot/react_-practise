@@ -90,12 +90,19 @@ export const FormComponent = () => {
   };
 
   const confirmSubmit = async () => {
+    const startTime = performance.now(); // ✅ Start timer
+
     try {
       const response = await fetch('/submissions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, age }),
       });
+
+      const endTime = performance.now(); // ✅ End timer
+      const elapsed = (endTime - startTime).toFixed(2); // ✅ Calculate elapsed time
+
+      console.log(`✅ API call completed in ${elapsed} ms`);
 
       if (!response.ok) {
         throw new Error('Failed to submit to backend');
@@ -113,9 +120,14 @@ export const FormComponent = () => {
         dispatch(clearSubmissions());
       }, 5000);
     } catch (error) {
+      const endTime = performance.now();
+      const elapsed = (endTime - startTime).toFixed(2);
+      console.error(`❌ API call failed in ${elapsed} ms:`, error.message);
+
       alert(`Error submitting to backend: ${error.message}`);
     }
   };
+
 
 
   const cancelSubmit = () => {
