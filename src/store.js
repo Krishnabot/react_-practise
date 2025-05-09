@@ -1,21 +1,10 @@
-import { configureStore, createSlice } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
+import formReducer from './features/form/formSlice';
 
-const formSlice = createSlice({
-    name : 'form',
-    initialState: {
-        submissions: [],
-    },
-    reducers: {
-        submitForm: (state, action) => {
-            state.submissions.push(action.payload);
-        },
-    },
-})
-
-export const { submitForm } = formSlice.actions;
 const store = configureStore({
-    reducer: {
-        form: formSlice.reducer,
-    },
+  reducer: {
+    form: formReducer,
+  },
 });
+
 export default store;

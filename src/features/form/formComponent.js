@@ -1,0 +1,116 @@
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { submitForm } from "./formSlice";
+import styled from "styled-components";
+
+// Styled Components (PascalCase names)
+const FormContainer = styled.div`
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 400px;
+  margin: 0 auto;
+`;
+
+const Input = styled.input`
+  display: block;
+  width: 100%;
+  margin-bottom: 1em;
+  padding: 0.5em;
+  box-sizing: border-box;
+`;
+
+const Button = styled.button`
+  padding: 0.5em 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
+const SubmissionList = styled.ul`
+  list-style-type: none;
+  padding: 0;
+`;
+
+const SubmissionItem = styled.li`
+  background-color: #f8f9fa;
+  margin: 0.5em 0;
+  padding: 1em;
+  border-radius: 5px;
+`;
+
+export const FormComponent = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [age, setAge] = useState("");
+  const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+  const submissions = useSelector((state) => state.form.submissions);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(submitForm({ username, email, age, password }));
+    alert(
+      `Submission successful!\nUsername: ${username}\nEmail: ${email}\nAge: ${age}`
+    );
+    setUsername("");
+    setEmail("");
+    setAge("");
+    setPassword("");
+  };
+
+  return (
+    <FormContainer>
+      <h2>Demo Form (Redux Toolkit + Styled Components)</h2>
+      <form onSubmit={handleSubmit}>
+        <label>Username:</label>
+        <Input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <label>Email:</label>
+        <Input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <label>Age:</label>
+        <Input
+          type="number"
+          placeholder="Age"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          required
+        />
+        <label>Password:</label>
+        <Input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <Button type="submit">Submit</Button>
+      </form>
+
+      <h3>Submissions:</h3>
+      <SubmissionList>
+        {submissions.map((submission, index) => (
+          <SubmissionItem key={index}>
+            Username: {submission.username}, Email: {submission.email}, Age:{" "}
+            {submission.age}
+          </SubmissionItem>
+        ))}
+      </SubmissionList>
+    </FormContainer>
+  );
+};
