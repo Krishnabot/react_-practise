@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { timedFetch } from '../../services/timeFetch';
-
 import { useDispatch, useSelector } from "react-redux";
 import { submitForm, clearSubmissions } from "./formSlice";
+import { useSubmitFormMutation } from "../../api/apiSlice";
 import styled from "styled-components";
 
 // Styled Components
@@ -63,6 +62,7 @@ const ConfirmationBox = styled.div`
 export const FormComponent = () => {
   const dispatch = useDispatch();
   const submissions = useSelector((state) => state.form.submissions);
+  const [submitFormMutation, { isLoading, isError, isSuccess, error }] = useSubmitFormMutation();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -92,38 +92,27 @@ export const FormComponent = () => {
   };
 
   const confirmSubmit = async () => {
+    const startTime = performance.now();
     try {
-      const {response, elapsed} = await timedFetch('/submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, age }),
-      });
-
-      console.log(`✅ API call completed in ${elapsed} ms`);
-
-      if (!response.ok) {
-        throw new Error('Failed to submit to backend');
-      }
-
-      const result = await response.json();
-      console.log('Backend response:', result);
+      await submitFormMutation({ username, email, age }).unwrap();
+      const endTime = performance.now();
+      const elapsed = (endTime - startTime).toFixed(2);
+      console.log(`✅ RTK Query: /submissions took ${elapsed} ms`);
 
       dispatch(submitForm({ username, email, age, password }));
       setPassword('');
       setShowConfirmation(false);
 
-      // Clear submissions after 5 seconds
       setTimeout(() => {
         dispatch(clearSubmissions());
       }, 5000);
-    } catch (error) {
-      console.error(`❌ API call failed in ${error.elapsed} ms:`, error.message);
-
-      alert(`Error submitting to backend: ${error.message}`);
+    } catch (err) {
+      const endTime = performance.now();
+      const elapsed = (endTime - startTime).toFixed(2);
+      console.error(`❌ RTK Query failed in ${elapsed} ms:`, err);
+      alert(`Error submitting to backend: ${err.message}`);
     }
   };
-
-
 
   const cancelSubmit = () => {
     setShowConfirmation(false);
@@ -131,7 +120,7 @@ export const FormComponent = () => {
 
   return (
     <FormContainer>
-      <h2>Demo Form (Redux Toolkit + Styled + LocalStorage)</h2>
+      <h2>Demo Form (RTK Query + Redux + Styled Components + LocalStorage)</h2>
       <form onSubmit={handleInitialSubmit}>
         <label>Username:</label>
         <Input
@@ -165,7 +154,9 @@ export const FormComponent = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'Submitting...' : 'Submit'}
+        </Button>
       </form>
 
       {showConfirmation && (
@@ -176,9 +167,20 @@ export const FormComponent = () => {
           <p>Username: {username}</p>
           <p>Email: {email}</p>
           <p>Age: {age}</p>
-          <Button onClick={confirmSubmit}>Yes, Submit</Button>
-          <CancelButton onClick={cancelSubmit}>Cancel</CancelButton>
+          <Button onClick={confirmSubmit} disabled={isLoading}>
+            Yes, Submit
+          </Button>
+          <CancelButton onClick={cancelSubmit} disabled={isLoading}>
+            Cancel
+          </CancelButton>
         </ConfirmationBox>
+      )}
+
+      {isError && (
+        <p style={{ color: 'red' }}>Error: {error?.message || 'Unknown error'}</p>
+      )}
+      {isSuccess && (
+        <p style={{ color: 'green' }}>Submission successful!</p>
       )}
 
       {submissions.length > 0 && (
