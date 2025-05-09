@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { submitForm } from "./formSlice";
 import styled from "styled-components";
 
-// Styled Components (PascalCase names)
+// Styled Components
 const FormContainer = styled.div`
   padding: 20px;
   font-family: Arial, sans-serif;
@@ -21,12 +21,20 @@ const Input = styled.input`
 
 const Button = styled.button`
   padding: 0.5em 1em;
+  margin-right: 0.5em;
   background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   &:hover {
     background-color: #0056b3;
+  }
+`;
+
+const CancelButton = styled(Button)`
+  background-color: #6c757d;
+  &:hover {
+    background-color: #5a6268;
   }
 `;
 
@@ -42,31 +50,46 @@ const SubmissionItem = styled.li`
   border-radius: 5px;
 `;
 
+const ConfirmationBox = styled.div`
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  padding: 1em;
+  margin-top: 1em;
+  border-radius: 5px;
+`;
+
 export const FormComponent = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const dispatch = useDispatch();
   const submissions = useSelector((state) => state.form.submissions);
 
-  const handleSubmit = (e) => {
+  const handleInitialSubmit = (e) => {
     e.preventDefault();
+    setShowConfirmation(true);
+  };
+
+  const confirmSubmit = () => {
     dispatch(submitForm({ username, email, age, password }));
-    alert(
-      `Submission successful!\nUsername: ${username}\nEmail: ${email}\nAge: ${age}`
-    );
     setUsername("");
     setEmail("");
     setAge("");
     setPassword("");
+    setShowConfirmation(false);
+  };
+
+  const cancelSubmit = () => {
+    setShowConfirmation(false);
   };
 
   return (
     <FormContainer>
       <h2>Demo Form (Redux Toolkit + Styled Components)</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleInitialSubmit}>
         <label>Username:</label>
         <Input
           type="text"
@@ -101,6 +124,19 @@ export const FormComponent = () => {
         />
         <Button type="submit">Submit</Button>
       </form>
+
+      {showConfirmation && (
+        <ConfirmationBox>
+          <p>
+            <strong>Confirm Submission:</strong>
+          </p>
+          <p>Username: {username}</p>
+          <p>Email: {email}</p>
+          <p>Age: {age}</p>
+          <Button onClick={confirmSubmit}>Yes, Submit</Button>
+          <CancelButton onClick={cancelSubmit}>Cancel</CancelButton>
+        </ConfirmationBox>
+      )}
 
       <h3>Submissions:</h3>
       <SubmissionList>
