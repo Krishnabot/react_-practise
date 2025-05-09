@@ -1,19 +1,18 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
+import { configureStore } from '@reduxjs/toolkit';
+import formReducer from './formSlice';
 import { FormComponent } from './formComponent';
 import '@testing-library/jest-dom';
 
-const mockStore = configureStore([]);
-
-describe('FormComponent', () => {
+describe('FormComponent (with real store)', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore({
-      form: {
-        submissions: [],
+    store = configureStore({
+      reducer: {
+        form: formReducer,
       },
     });
 
