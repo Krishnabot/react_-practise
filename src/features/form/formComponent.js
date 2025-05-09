@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { submitForm, clearSubmissions } from "./formSlice";
 import styled from "styled-components";
@@ -59,14 +59,30 @@ const ConfirmationBox = styled.div`
 `;
 
 export const FormComponent = () => {
+  const dispatch = useDispatch();
+  const submissions = useSelector((state) => state.form.submissions);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [password, setPassword] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const dispatch = useDispatch();
-  const submissions = useSelector((state) => state.form.submissions);
+  // Load saved data from localStorage on mount
+  useEffect(() => {
+    const savedData = JSON.parse(localStorage.getItem("formData"));
+    if (savedData) {
+      setUsername(savedData.username || "");
+      setEmail(savedData.email || "");
+      setAge(savedData.age || "");
+    }
+  }, []);
+
+  // Save to localStorage whenever username, email, or age changes
+  useEffect(() => {
+    const dataToSave = { username, email, age };
+    localStorage.setItem("formData", JSON.stringify(dataToSave));
+  }, [username, email, age]);
 
   const handleInitialSubmit = (e) => {
     e.preventDefault();
@@ -75,10 +91,7 @@ export const FormComponent = () => {
 
   const confirmSubmit = () => {
     dispatch(submitForm({ username, email, age, password }));
-    setUsername("");
-    setEmail("");
-    setAge("");
-    setPassword("");
+    setPassword(""); // do NOT save password in localStorage
     setShowConfirmation(false);
 
     // Clear submissions after 5 seconds
@@ -93,7 +106,7 @@ export const FormComponent = () => {
 
   return (
     <FormContainer>
-      <h2>Demo Form (Redux Toolkit + Styled Components)</h2>
+      <h2>Demo Form (Redux Toolkit + Styled + LocalStorage)</h2>
       <form onSubmit={handleInitialSubmit}>
         <label>Username:</label>
         <Input
