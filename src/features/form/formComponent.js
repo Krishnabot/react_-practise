@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { submitForm } from "./formSlice";
+import { submitForm, clearSubmissions } from "./formSlice";
 import styled from "styled-components";
 
 // Styled Components
@@ -80,6 +80,11 @@ export const FormComponent = () => {
     setAge("");
     setPassword("");
     setShowConfirmation(false);
+
+    // Clear submissions after 5 seconds
+    setTimeout(() => {
+      dispatch(clearSubmissions());
+    }, 5000);
   };
 
   const cancelSubmit = () => {
@@ -138,15 +143,19 @@ export const FormComponent = () => {
         </ConfirmationBox>
       )}
 
-      <h3>Submissions:</h3>
-      <SubmissionList>
-        {submissions.map((submission, index) => (
-          <SubmissionItem key={index}>
-            Username: {submission.username}, Email: {submission.email}, Age:{" "}
-            {submission.age}
-          </SubmissionItem>
-        ))}
-      </SubmissionList>
+      {submissions.length > 0 && (
+        <>
+          <h3>Submissions (auto-clears in 5 sec):</h3>
+          <SubmissionList>
+            {submissions.map((submission, index) => (
+              <SubmissionItem key={index}>
+                Username: {submission.username}, Email: {submission.email}, Age:{" "}
+                {submission.age}
+              </SubmissionItem>
+            ))}
+          </SubmissionList>
+        </>
+      )}
     </FormContainer>
   );
 };

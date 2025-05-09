@@ -9,7 +9,10 @@ const formSlice = createSlice({
         submitForm: (state, action) => {
             state.submissions.push(action.payload);
         },
+        clearSubmissions: (state) => {
+            state.submissions = [];
+        },
     },
 });
-export const { submitForm } = formSlice.actions;
+export const { submitForm , clearSubmissions} = formSlice.actions;
 export default formSlice.reducer;
